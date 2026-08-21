@@ -11,10 +11,16 @@ const getHeaders = () => {
   };
 };
 
-export const getAnalytics = async (): Promise<AnalyticsResponse> => {
-  const response = await fetch(API_URL, {
-    headers: getHeaders()
-  });
+export const getCampaignAnalytics = async (
+  campaignId: string
+): Promise<AnalyticsResponse> => {
+
+  const response = await fetch(
+    `${API_URL}/campaign/${campaignId}`,
+    {
+      headers: getHeaders()
+    }
+  );
 
   if (!response.ok) {
     throw new Error("Failed to fetch analytics");

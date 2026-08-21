@@ -4,4 +4,7 @@ export interface AnalyticsResponse {
   totalOpened: number;
   totalClicked: number;
   totalFailed: number;
+  deliveryRate: number;
+  openRate: number;
+  clickRate: number;
 }

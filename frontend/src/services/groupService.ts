@@ -1,9 +1,9 @@
 import type {
-  Contact,
-  ContactRequest
-} from "../types/contact";
+  ContactGroup,
+  ContactGroupRequest
+} from "../types/group";
 
-const API_URL = "https://campaignpro.onrender.com/api/contacts";
+const API_URL = "https://campaignpro.onrender.com/api/groups";
 
 const getHeaders = () => {
   const token = localStorage.getItem("token");
@@ -14,22 +14,21 @@ const getHeaders = () => {
   };
 };
 
-export const getContacts = async (): Promise<Contact[]> => {
+export const getGroups = async (): Promise<ContactGroup[]> => {
   const response = await fetch(API_URL, {
     headers: getHeaders()
   });
 
   if (!response.ok) {
-    throw new Error("Failed to fetch contacts");
+    throw new Error("Failed to fetch groups");
   }
 
   return response.json();
 };
 
-export const createContact = async (
-  data: ContactRequest
-): Promise<Contact> => {
-
+export const createGroup = async (
+  data: ContactGroupRequest
+): Promise<ContactGroup> => {
   const response = await fetch(API_URL, {
     method: "POST",
     headers: getHeaders(),
@@ -37,22 +36,21 @@ export const createContact = async (
   });
 
   if (!response.ok) {
-    throw new Error("Failed to create contact");
+    throw new Error("Failed to create group");
   }
 
   return response.json();
 };
 
-export const deleteContact = async (
+export const deleteGroup = async (
   id: string
 ): Promise<void> => {
-
   const response = await fetch(`${API_URL}/${id}`, {
     method: "DELETE",
     headers: getHeaders()
   });
 
   if (!response.ok) {
-    throw new Error("Failed to delete contact");
+    throw new Error("Failed to delete group");
   }
 };

@@ -11,12 +11,14 @@ import Campaigns from "./pages/Campaigns";
 import Analytics from "./pages/Analytics";
 import Admin from "./pages/Admin";
 import Navbar from "./components/Navbar";
+import Profile from "./pages/Profile";
+import Tracking from "./pages/Tracking";
 
 function App() {
   return (
     <BrowserRouter>
 
-    <Navbar />
+      <Navbar />
 
       <Routes>
         <Route path="/" element={<Home />} />
@@ -38,6 +40,10 @@ function App() {
         <Route path="/analytics" element={<Analytics />} />
 
         <Route path="/admin" element={<Admin />} />
+
+        <Route path="/profile" element={<Profile />} />
+
+        <Route path="/tracking" element={<Tracking />} />
       </Routes>
 
     </BrowserRouter>
