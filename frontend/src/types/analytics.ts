@@ -1,0 +1,7 @@
+export interface AnalyticsResponse {
+  totalEmailsSent: number;
+  totalDelivered: number;
+  totalOpened: number;
+  totalClicked: number;
+  totalFailed: number;
+}
