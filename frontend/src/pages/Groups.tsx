@@ -1,177 +1,160 @@
 import { useEffect, useState } from "react";
-
-import type {
-  ContactGroup,
-  ContactGroupRequest
-} from "../types/group";
-
-import {
-  getGroups,
-  createGroup,
-  deleteGroup
-} from "../services/groupService";
+import { getGroups, createGroup, updateGroup, deleteGroup } from "../services/groupService";
+import type { ContactGroup, ContactGroupRequest } from "../types/group";
 
 function Groups() {
-
   const [groups, setGroups] = useState<ContactGroup[]>([]);
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
 
-  const [showForm, setShowForm] = useState(false);
-
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-
-  const loadGroups = async () => {
-    try {
-      setError("");
-
-      const data = await getGroups();
-
-      setGroups(data);
-
-    } catch (err) {
-      setError("Failed to load groups");
-    }
-  };
 
   useEffect(() => {
     loadGroups();
   }, []);
 
-  const handleCreate = async (
-    e: React.FormEvent
-  ) => {
-
-    e.preventDefault();
-
-    setMessage("");
-    setError("");
-
+  const loadGroups = async () => {
     try {
-
-      const groupData: ContactGroupRequest = {
-        name,
-        description
-      };
-
-      await createGroup(groupData);
-
-      setMessage("Group created successfully!");
-
-      setName("");
-      setDescription("");
-
-      setShowForm(false);
-
-      loadGroups();
-
-    } catch (err) {
-
-      setError("Failed to create group");
-
+      const data = await getGroups();
+      setGroups(data);
+    } catch (error) {
+      console.error("Failed to load groups", error);
+      setMessage("Failed to load groups");
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const resetForm = () => {
+    setName("");
+    setDescription("");
+    setEditingId(null);
+  };
+
+  const handleSubmit = async (
+    event: React.FormEvent
+  ) => {
+    event.preventDefault();
+
+    const groupData: ContactGroupRequest = {
+      name,
+      description
+    };
 
     try {
+      if (editingId) {
+        await updateGroup(editingId, groupData);
+        setMessage("Group updated successfully!");
+      } else {
+        await createGroup(groupData);
+        setMessage("Group created successfully!");
+      }
 
-      setMessage("");
-      setError("");
+      resetForm();
+      await loadGroups();
 
+    } catch (error) {
+      console.error("Failed to save group", error);
+      setMessage("Failed to save group");
+    }
+  };
+
+  const handleEdit = (group: ContactGroup) => {
+    setName(group.name);
+    setDescription(group.description || "");
+    setEditingId(group.id);
+    setMessage("");
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
       await deleteGroup(id);
-
       setMessage("Group deleted successfully!");
+      if (editingId === id) {
+        resetForm();
+      }
 
-      loadGroups();
+      await loadGroups();
 
-    } catch (err) {
-
-      setError("Failed to delete group");
-
+    } catch (error) {
+      console.error("Failed to delete group", error);
+      setMessage("Failed to delete group");
     }
   };
 
   return (
-
     <div className="min-h-screen bg-gray-100 p-8">
 
-      <div className="flex justify-between items-center mb-8">
+      <div className="mb-8">
 
-        <div>
+        <h1 className="text-3xl font-bold">
+          Contact Groups
+        </h1>
 
-          <h1 className="text-3xl font-bold">
-            Contact Groups
-          </h1>
-
-          <p className="text-gray-600 mt-2">
-            Organize contacts into groups
-          </p>
-
-        </div>
-
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="bg-blue-600 text-white px-5 py-3 rounded hover:bg-blue-700"
-        >
-          {showForm ? "Cancel" : "+ Create Group"}
-        </button>
+        <p className="text-gray-600 mt-2">
+          Organize contacts into groups
+        </p>
 
       </div>
 
       {message && (
-        <div className="bg-green-100 text-green-700 p-4 mb-6 rounded">
+        <div className="bg-blue-100 text-blue-700 p-4 rounded mb-6">
           {message}
         </div>
       )}
 
-      {error && (
-        <div className="bg-red-100 text-red-700 p-4 mb-6 rounded">
-          {error}
-        </div>
-      )}
+      <div className="bg-white rounded-lg shadow p-6 mb-8">
 
-      {showForm && (
+        <h2 className="text-xl font-semibold mb-4">
+          {editingId ? "Edit Group" : "Create Group"}
+        </h2>
 
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-4"
+        >
 
-          <h2 className="text-xl font-semibold mb-4">
-            Create Group
-          </h2>
+          <input
+            type="text"
+            placeholder="Group Name"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            className="border p-3 rounded"
+            required
+          />
 
-          <form onSubmit={handleCreate}>
+          <textarea
+            placeholder="Description"
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+            className="border p-3 rounded"
+            rows={4}
+          />
 
-            <input
-              type="text"
-              placeholder="Group Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full border p-3 rounded mb-4"
-              required
-            />
-
-            <textarea
-              placeholder="Description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full border p-3 rounded mb-4"
-              rows={4}
-            />
+          <div className="flex gap-3">
 
             <button
               type="submit"
-              className="bg-green-600 text-white px-5 py-3 rounded hover:bg-green-700"
+              className="bg-blue-600 text-white px-5 py-3 rounded hover:bg-blue-700"
             >
-              Save Group
+              {editingId ? "Update Group" : "Create Group"}
             </button>
 
-          </form>
+            {editingId && (
+              <button
+                type="button"
+                onClick={resetForm}
+                className="bg-gray-500 text-white px-5 py-3 rounded hover:bg-gray-600"
+              >
+                Cancel
+              </button>
+            )}
 
-        </div>
+          </div>
 
-      )}
+        </form>
+
+      </div>
 
       <div className="bg-white rounded-lg shadow p-6">
 
@@ -193,7 +176,7 @@ function Groups() {
 
               <div
                 key={group.id}
-                className="border p-4 rounded flex justify-between items-center"
+                className="border rounded-lg p-4 flex justify-between items-center"
               >
 
                 <div>
@@ -210,23 +193,30 @@ function Groups() {
 
                 </div>
 
-                <button
-                  onClick={() => handleDelete(group.id)}
-                  className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-                >
-                  Delete
-                </button>
+                <div className="flex gap-3">
+
+                  <button
+                    onClick={() => handleEdit(group)}
+                    className="bg-yellow-500 text-white px-4 py-2 rounded"
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    onClick={() => handleDelete(group.id)}
+                    className="bg-red-600 text-white px-4 py-2 rounded"
+                  >
+                    Delete
+                  </button>
+
+                </div>
 
               </div>
 
             ))}
-
           </div>
-
         )}
-
       </div>
-
     </div>
   );
 }

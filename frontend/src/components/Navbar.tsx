@@ -2,10 +2,10 @@ import { Link } from "react-router-dom";
 
 function Navbar() {
     return (
-        <nav className="bg-blue-600 text-white p-4">
+        <nav className="bg-blue-600 text-white p-8">
             <div className="flex flex-wrap items-center justify-between gap-4">
 
-                <Link to="/" className="text-2xl font-bold">
+                <Link to="/" className="text-4xl font-bold">
                   CampaignPro
                 </Link>
 
@@ -28,9 +28,6 @@ function Navbar() {
 
                     <Link to="/profile">Profile</Link>
 
-                    <Link to="/login">Login</Link>
-
-                    <Link to="/register">Register</Link>
                 </div>
 
             </div>

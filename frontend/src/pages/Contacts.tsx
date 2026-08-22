@@ -1,13 +1,8 @@
 import { useEffect, useState } from "react";
+import { getContacts, createContact, updateContact, deleteContact } from "../services/contactService";
 import type { Contact, ContactRequest } from "../types/contact";
-import {
-  getContacts,
-  createContact,
-  deleteContact
-} from "../services/contactService";
 
 function Contacts() {
-
   const [contacts, setContacts] = useState<Contact[]>([]);
 
   const [name, setName] = useState("");
@@ -15,10 +10,9 @@ function Contacts() {
   const [phone, setPhone] = useState("");
   const [company, setCompany] = useState("");
 
-  const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
 
   useEffect(() => {
     loadContacts();
@@ -26,75 +20,80 @@ function Contacts() {
 
   const loadContacts = async () => {
     try {
-      setError("");
-
       const data = await getContacts();
-
       setContacts(data);
-
-    } catch (err) {
-      setError("Failed to load contacts");
+    } catch (error) {
+      console.error("Failed to load contacts", error);
     }
   };
 
-  const handleCreate = async (
-    e: React.FormEvent
+  const resetForm = () => {
+    setName("");
+    setEmail("");
+    setPhone("");
+    setCompany("");
+    setEditingId(null);
+  };
+
+  const handleSubmit = async (
+    event: React.FormEvent
   ) => {
+    event.preventDefault();
 
-    e.preventDefault();
-
-    setMessage("");
-    setError("");
+    const contactData: ContactRequest = {
+      name,
+      email,
+      phone,
+      company
+    };
 
     try {
+      if (editingId) {
+        await updateContact(editingId, contactData);
+        setMessage("Contact updated successfully!");
+      } else {
+        await createContact(contactData);
+        setMessage("Contact created successfully!");
+      }
 
-      const contactData: ContactRequest = {
-        name,
-        email,
-        phone,
-        company,
-        status: "ACTIVE"
-      };
+      resetForm();
 
-      await createContact(contactData);
+      await loadContacts();
 
-      setMessage("Contact added successfully!");
+    } catch (error) {
+      console.error("Failed to save contact", error);
 
-      setName("");
-      setEmail("");
-      setPhone("");
-      setCompany("");
-
-      setShowForm(false);
-
-      loadContacts();
-
-    } catch (err) {
-
-      setError("Failed to add contact");
-
+      setMessage("Failed to save contact");
     }
+  };
+
+  const handleEdit = (contact: Contact) => {
+    setName(contact.name);
+    setEmail(contact.email);
+    setPhone(contact.phone || "");
+    setCompany(contact.company || "");
+
+    setEditingId(contact.id);
+
+    setMessage("");
   };
 
   const handleDelete = async (id: string) => {
-
     try {
-
       await deleteContact(id);
 
       setMessage("Contact deleted successfully!");
 
-      loadContacts();
+      await loadContacts();
 
-    } catch (err) {
+    } catch (error) {
+      console.error("Failed to delete contact", error);
 
-      setError("Failed to delete contact");
-
+      setMessage("Failed to delete contact");
     }
   };
 
   return (
-
     <div className="min-h-screen bg-gray-100 p-8">
 
       <div className="flex justify-between items-center mb-8">
@@ -111,83 +110,101 @@ function Contacts() {
 
         </div>
 
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="bg-blue-600 text-white px-5 py-3 rounded hover:bg-blue-700"
-        >
-          {showForm ? "Cancel" : "+ Add Contact"}
-        </button>
-
       </div>
 
       {message && (
-        <div className="bg-green-100 text-green-700 p-4 mb-6 rounded">
+
+        <div className="bg-blue-100 text-blue-700 p-4 rounded mb-6">
           {message}
         </div>
+
       )}
 
-      {error && (
-        <div className="bg-red-100 text-red-700 p-4 mb-6 rounded">
-          {error}
-        </div>
-      )}
+      <div className="bg-white rounded-lg shadow p-6 mb-8">
 
-      {showForm && (
+        <h2 className="text-xl font-semibold mb-4">
 
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
+          {editingId
+            ? "Edit Contact"
+            : "Add Contact"}
 
-          <h2 className="text-xl font-semibold mb-4">
-            Add Contact
-          </h2>
+        </h2>
 
-          <form onSubmit={handleCreate}>
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-1 md:grid-cols-2 gap-4"
+        >
 
-            <input
-              type="text"
-              placeholder="Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full border p-3 rounded mb-4"
-              required
-            />
+          <input
+            type="text"
+            placeholder="Name"
+            value={name}
+            onChange={(event) =>
+              setName(event.target.value)
+            }
+            className="border p-3 rounded"
+            required
+          />
 
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full border p-3 rounded mb-4"
-              required
-            />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(event) =>
+              setEmail(event.target.value)
+            }
+            className="border p-3 rounded"
+            required
+          />
 
-            <input
-              type="text"
-              placeholder="Phone"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="w-full border p-3 rounded mb-4"
-            />
+          <input
+            type="text"
+            placeholder="Phone"
+            value={phone}
+            onChange={(event) =>
+              setPhone(event.target.value)
+            }
+            className="border p-3 rounded"
+          />
 
-            <input
-              type="text"
-              placeholder="Company"
-              value={company}
-              onChange={(e) => setCompany(e.target.value)}
-              className="w-full border p-3 rounded mb-4"
-            />
+          <input
+            type="text"
+            placeholder="Company"
+            value={company}
+            onChange={(event) =>
+              setCompany(event.target.value)
+            }
+            className="border p-3 rounded"
+          />
+
+          <div className="md:col-span-2 flex gap-3">
 
             <button
               type="submit"
-              className="bg-green-600 text-white px-5 py-3 rounded hover:bg-green-700"
+              className="bg-blue-600 text-white px-5 py-3 rounded hover:bg-blue-700"
             >
-              Save Contact
+
+              {editingId ? "Update Contact" : "Add Contact"}
+
             </button>
 
-          </form>
+            {editingId && (
 
-        </div>
+              <button
+                type="button"
+                onClick={resetForm}
+                className="bg-gray-500 text-white px-5 py-3 rounded hover:bg-gray-600"
+              >
+                Cancel
+              </button>
 
-      )}
+            )}
+
+          </div>
+
+        </form>
+
+      </div>
 
       <div className="bg-white rounded-lg shadow p-6">
 
@@ -200,7 +217,7 @@ function Contacts() {
           <p className="text-gray-500">
             No contacts available.
           </p>
-
+          
         ) : (
 
           <div className="space-y-4">
@@ -209,7 +226,7 @@ function Contacts() {
 
               <div
                 key={contact.id}
-                className="border p-4 rounded flex justify-between items-center"
+                className="border rounded-lg p-4 flex justify-between items-center"
               >
 
                 <div>
@@ -223,25 +240,42 @@ function Contacts() {
                   </p>
 
                   {contact.phone && (
-                    <p className="text-gray-600">
+
+                    <p className="text-gray-500 text-sm">
                       Phone: {contact.phone}
                     </p>
+
                   )}
 
                   {contact.company && (
-                    <p className="text-gray-600">
+
+                    <p className="text-gray-500 text-sm">
                       Company: {contact.company}
                     </p>
+
                   )}
 
                 </div>
 
-                <button
-                  onClick={() => handleDelete(contact.id)}
-                  className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-                >
-                  Delete
-                </button>
+                <div className="flex gap-3">
+
+                  <button
+                    onClick={() => handleEdit(contact)}
+                    className="bg-yellow-500 text-white px-4 py-2 rounded"
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    onClick={() =>
+                      handleDelete(contact.id)
+                    }
+                    className="bg-red-600 text-white px-4 py-2 rounded"
+                  >
+                    Delete
+                  </button>
+
+                </div>
 
               </div>
 
@@ -254,7 +288,6 @@ function Contacts() {
       </div>
 
     </div>
-
   );
 }
 

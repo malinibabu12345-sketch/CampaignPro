@@ -1,9 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  getProfile,
-  updateProfile
-} from "../services/userService";
-
+import { getProfile, updateProfile } from "../services/userService";
 import type { User } from "../types/user";
 
 function Profile() {
@@ -24,12 +20,10 @@ function Profile() {
       setLoading(true);
 
       const data = await getProfile();
-
       setUser(data);
       setName(data.name);
 
     } catch (err) {
-
       if (err instanceof Error) {
         setError(err.message);
       } else {
@@ -41,27 +35,15 @@ function Profile() {
     }
   };
 
-  const handleUpdate = async (
-    e: React.FormEvent
-  ) => {
-
+  const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setMessage("");
     setError("");
-
     try {
-
-      const updatedUser = await updateProfile({
-        name
-      });
-
+      const updatedUser = await updateProfile({ name });
       setUser(updatedUser);
-
       setMessage("Profile updated successfully!");
-
     } catch (err) {
-
       if (err instanceof Error) {
         setError(err.message);
       } else {

@@ -9,9 +9,7 @@ function Analytics() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [selectedCampaignId, setSelectedCampaignId] = useState("");
 
-  const [analytics, setAnalytics] =
-    useState<AnalyticsResponse | null>(null);
-
+  const [analytics, setAnalytics] = useState<AnalyticsResponse | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -27,9 +25,7 @@ function Analytics() {
     }
   };
 
-  const handleCampaignChange = async (
-    campaignId: string
-  ) => {
+  const handleCampaignChange = async (campaignId: string) => {
     setSelectedCampaignId(campaignId);
     setAnalytics(null);
     setError("");
@@ -37,7 +33,6 @@ function Analytics() {
     if (!campaignId) {
       return;
     }
-
     try {
       const data = await getCampaignAnalytics(campaignId);
       setAnalytics(data);

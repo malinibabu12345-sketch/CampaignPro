@@ -1,8 +1,4 @@
-import type {
-  RegisterRequest,
-  LoginRequest,
-  LoginResponse
-} from "../types/auth";
+import type { RegisterRequest, LoginRequest, LoginResponse } from "../types/auth";
 
 const API_URL = "https://campaignpro.onrender.com/api/auth";
 

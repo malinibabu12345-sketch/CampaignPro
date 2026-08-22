@@ -1,14 +1,7 @@
 import { useEffect, useState } from "react";
-import {
-  getTemplates,
-  createTemplate,
-  deleteTemplate
-} from "../services/templateService";
+import { getTemplates, createTemplate, deleteTemplate } from "../services/templateService";
 
-import type {
-  EmailTemplate,
-  EmailTemplateRequest
-} from "../types/template";
+import type { EmailTemplate, EmailTemplateRequest } from "../types/template";
 
 function Templates() {
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
@@ -16,7 +9,6 @@ function Templates() {
   const [error, setError] = useState("");
 
   const [showForm, setShowForm] = useState(false);
-
   const [name, setName] = useState("");
   const [subject, setSubject] = useState("");
   const [htmlContent, setHtmlContent] = useState("");
@@ -39,11 +31,8 @@ function Templates() {
     loadTemplates();
   }, []);
 
-  const handleCreateTemplate = async (
-    e: React.FormEvent
-  ) => {
+  const handleCreateTemplate = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       const data: EmailTemplateRequest = {
         name,
@@ -52,11 +41,9 @@ function Templates() {
       };
 
       await createTemplate(data);
-
       setName("");
       setSubject("");
       setHtmlContent("");
-
       setShowForm(false);
 
       await loadTemplates();
@@ -69,9 +56,7 @@ function Templates() {
   const handleDelete = async (id: string) => {
     try {
       await deleteTemplate(id);
-
       await loadTemplates();
-
     } catch (err) {
       setError("Failed to delete template");
     }

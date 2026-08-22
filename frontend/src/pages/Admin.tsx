@@ -7,7 +7,7 @@ function Admin() {
         </h1>
 
         <p className="text-gray-600 mt-2">
-          Manage users, campaigns and monitor platform activity
+          Manage users, campaigns and monitor activity
         </p>
       </div>
 

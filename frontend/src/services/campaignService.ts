@@ -1,13 +1,9 @@
-import type {
-  Campaign,
-  CampaignRequest
-} from "../types/campaign";
+import type { Campaign, CampaignRequest } from "../types/campaign";
 
 const API_URL = "https://campaignpro.onrender.com/api/campaigns";
 
 const getHeaders = () => {
   const token = localStorage.getItem("token");
-
   return {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`
@@ -22,19 +18,15 @@ export const getCampaigns = async (): Promise<Campaign[]> => {
   if (!response.ok) {
     throw new Error("Failed to fetch campaigns");
   }
-
   return response.json();
 };
 
-export const createCampaign = async (
-  data: CampaignRequest
-): Promise<Campaign> => {
+export const createCampaign = async (data: CampaignRequest): Promise<Campaign> => {
   const response = await fetch(API_URL, {
     method: "POST",
     headers: getHeaders(),
     body: JSON.stringify(data)
   });
-
   if (!response.ok) {
     throw new Error("Failed to create campaign");
   }
@@ -44,14 +36,12 @@ export const createCampaign = async (
 
 export const updateCampaign = async (
   id: string,
-  data: CampaignRequest
-): Promise<Campaign> => {
+  data: CampaignRequest): Promise<Campaign> => {
   const response = await fetch(`${API_URL}/${id}`, {
     method: "PUT",
     headers: getHeaders(),
     body: JSON.stringify(data)
   });
-
   if (!response.ok) {
     throw new Error("Failed to update campaign");
   }
@@ -60,29 +50,50 @@ export const updateCampaign = async (
 };
 
 export const deleteCampaign = async (
-  id: string
-): Promise<void> => {
+  id: string): Promise<void> => {
   const response = await fetch(`${API_URL}/${id}`, {
     method: "DELETE",
     headers: getHeaders()
   });
-
   if (!response.ok) {
     throw new Error("Failed to delete campaign");
   }
 };
 
-export const sendCampaign = async (
-  id: string
-): Promise<string> => {
+export const sendCampaign = async (id: string): Promise<string> => {
   const response = await fetch(`${API_URL}/${id}/send`, {
     method: "POST",
     headers: getHeaders()
   });
-
   if (!response.ok) {
     throw new Error("Failed to send campaign");
   }
-
   return response.text();
+};
+
+export const getCampaignRecipients = async (id: string) => {
+  const response = await fetch(
+    `${API_URL}/${id}/recipients`,
+    {
+      headers: getHeaders()
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to fetch campaign recipients");
+  }
+
+  return response.json();
+};
+
+export const getCampaignAnalytics = async (id: string) => {
+  const response = await fetch(
+    `https://campaignpro.onrender.com/api/analytics/campaign/${id}`,
+    {
+      headers: getHeaders()
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to fetch campaign analytics");
+  }
+  return response.json();
 };
